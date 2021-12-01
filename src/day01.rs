@@ -1,67 +1,39 @@
 use crate::util;
 
-static TARGET_SUM: i32 = 2020;
+fn part_one(sea_depth_measurements: &Vec<u16>) {
+    let mut times_it_gets_deeper: usize = 0;
 
-fn find_two_that_sum(expense_entries_vector: &Vec<String>) {
-    // Loop over list
-    for (s_position, s) in expense_entries_vector.iter().enumerate() {
-        for (t_position, t) in expense_entries_vector.iter().enumerate() {
-            if t_position > s_position {
-                break;
+    for (s_position, s) in sea_depth_measurements.iter().enumerate() {
+        if s_position < sea_depth_measurements.len() - 1 {
+            if sea_depth_measurements[s_position + 1] > *s {
+                times_it_gets_deeper += 1;
             }
-            let s_as_int: i32 = s.parse::<i32>().unwrap();
-            let t_as_int: i32 = t.parse::<i32>().unwrap();
-
-            if s_as_int + t_as_int == TARGET_SUM {
-                println!(
-                    "Whoop dee do {}, {} sum to {}",
-                    s,
-                    t,
-                    TARGET_SUM.to_string()
-                );
-                println!("These multiply to {}", s_as_int * t_as_int);
-                break;
-            };
         }
     }
+    println!("The times is gets deeper is {}", times_it_gets_deeper);
 }
 
-fn find_three_that_sum(expense_entries_vector: &Vec<String>) {
-    for (s_position, s) in expense_entries_vector.iter().enumerate() {
-        for (t_position, t) in expense_entries_vector.iter().enumerate() {
-            for (u_position, u) in expense_entries_vector.iter().enumerate() {
-                //println!("{} {}", s, t);
-                if u_position > t_position {
-                    break;
-                }
-                if t_position > s_position {
-                    break;
-                }
+fn part_two(sea_depth_measurements: &Vec<u16>) {
+    // This really boils down to comapring the measurement 3 along from where you are.
+    let mut times_it_gets_deeper: usize = 0;
 
-                let s_as_int: i32 = s.parse::<i32>().unwrap();
-                let t_as_int: i32 = t.parse::<i32>().unwrap();
-                let u_as_int: i32 = u.parse::<i32>().unwrap();
-
-                if s_as_int + t_as_int + u_as_int == TARGET_SUM {
-                    println!(
-                        "Whoop dee do {}, {}, {} sum to {}",
-                        s,
-                        t,
-                        u,
-                        TARGET_SUM.to_string()
-                    );
-                    println!("These multiply to {}", s_as_int * t_as_int * u_as_int);
-                    break;
-                };
+    for (s_position, s) in sea_depth_measurements.iter().enumerate() {
+        if s_position < sea_depth_measurements.len() - 3 {
+            if sea_depth_measurements[s_position + 3] > *s {
+                times_it_gets_deeper += 1;
             }
         }
     }
+    println!("The times is gets deeper is {}", times_it_gets_deeper);
 }
 
 pub(crate) fn day01() {
     // Load inputs from input directory
-    let expense_entries_vector = util::load_inputs(01);
+    let sea_depth_measurements: Vec<u16> = util::load_inputs("01".to_string())
+        .iter()
+        .map(|x| x.parse::<u16>().unwrap())
+        .collect();
 
-    find_two_that_sum(&expense_entries_vector);
-    find_three_that_sum(&expense_entries_vector)
+    part_one(&sea_depth_measurements);
+    part_two(&sea_depth_measurements)
 }
