@@ -1,4 +1,6 @@
 use crate::util;
+use std::num::ParseIntError;
+use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
 enum Direction {
@@ -12,18 +14,19 @@ struct Instruction {
     amount: i32,
 }
 
-impl Instruction {
-    fn from_str(input: &str) -> Instruction {
-        let input_as_vec: Vec<&str> = input.split(' ').collect();
+impl FromStr for Instruction {
+    type Err = ParseIntError;
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        let (d, a) = input.split_once(" ").unwrap();
 
-        let direction = match input_as_vec[0] {
+        let direction = match d {
             "forward" => Direction::Forward,
             "up" => Direction::Up,
             "down" => Direction::Down,
             _ => panic!("Whoops-si-daisy!"),
         };
-        let amount = input_as_vec[1].parse::<i32>().unwrap();
-        Instruction { direction, amount }
+        let amount = a.parse::<i32>().unwrap();
+        Ok(Instruction { direction, amount })
     }
 }
 
@@ -82,7 +85,7 @@ pub(crate) fn day02() {
     // Load inputs from input directory
     let submarine_instructions: Vec<Instruction> = util::load_inputs("02".to_string())
         .iter()
-        .map(|v| Instruction::from_str(v))
+        .map(|v| Instruction::from_str(v).unwrap())
         .collect();
 
     part_one(&submarine_instructions);
