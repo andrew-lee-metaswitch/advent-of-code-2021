@@ -15,6 +15,7 @@ fn part_one(sea_depth_measurements: &[u16]) {
 
 fn part_two(sea_depth_measurements: &[u16]) {
     // This really boils down to comapring the measurement 3 along from where you are.
+    // Because a + b + c > b + c + d <=> a > d
     let mut times_it_gets_deeper: usize = 0;
 
     for (s_position, s) in sea_depth_measurements.iter().enumerate() {
