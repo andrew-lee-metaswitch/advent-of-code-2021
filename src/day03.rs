@@ -44,7 +44,6 @@ fn most_popular(submarine_diags: &[Vec<u32>], bit: usize) -> u32 {
 }
 
 fn part_two(submarine_diags: &[Vec<u32>]) {
-
     // Create a mutable vector to each
     let mut oxygen_gen_diags = submarine_diags.clone().to_owned();
     let mut co2_srubber_diags = submarine_diags.clone().to_owned();
@@ -52,7 +51,6 @@ fn part_two(submarine_diags: &[Vec<u32>]) {
 
     // Loop over the mutable oxygen_gen_diags vector until only one reading is left
     while oxygen_gen_diags.len() > 1 {
-
         // Find which is the most common digit in the 'bit' bit
         match most_popular(&oxygen_gen_diags, bit) {
             // If 0 is the most popular digit, filter in only the diag-lines with '0' in that digit
@@ -63,7 +61,7 @@ fn part_two(submarine_diags: &[Vec<u32>]) {
                     .map(|v| v.to_owned())
                     .collect::<Vec<Vec<u32>>>()
             }
-             // If 1 is the most popular digit, or it is a tie, filter in only the diag-lines with '1' in that digit
+            // If 1 is the most popular digit, or it is a tie, filter in only the diag-lines with '1' in that digit
             _ => {
                 oxygen_gen_diags = oxygen_gen_diags
                     .iter()
