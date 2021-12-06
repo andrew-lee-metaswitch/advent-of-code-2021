@@ -28,14 +28,10 @@ fn part_two(lanternfish: Vec<i8>) {
         lanternfish_hash.insert(f, 0);
     }
     for f in lanternfish.iter() {
-        match lanternfish_hash.clone().get(f) {
-            Some(g) => lanternfish_hash.insert(*f, g + 1),
-            None => lanternfish_hash.insert(*f, 1),
-        };
+        let counter = lanternfish_hash.entry(*f).or_insert(0);
+        *counter += 1;
     }
-    println!("{:?}", lanternfish_hash);
     for _day in 0..256 {
-        println!("Day {}, {:?}", _day, lanternfish_hash);
         let clone_lf = lanternfish_hash.clone();
         for (key, val) in clone_lf.iter() {
             match key {
