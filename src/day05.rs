@@ -1,7 +1,7 @@
 use crate::util;
 use regex::Regex;
 use std::collections::HashMap;
-use std::{str::FromStr};
+use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct Vent {
@@ -15,7 +15,6 @@ impl FromStr for Vent {
         let re = Regex::new(r#"(\d*),(\d*) -> (\d*),(\d*)"#).unwrap();
 
         if let Some(cap) = re.captures_iter(input).next() {
-            
             // Captures({0: Some("781,721 -> 781,611"), 1: Some("781"), 2: Some("721"), 3: Some("781"), 4: Some("611")})
             let start_point: [i32; 2] = [
                 cap[1].parse::<i32>().unwrap(),
@@ -29,13 +28,15 @@ impl FromStr for Vent {
                 if start_point[1] > end_point[1] {
                     return Ok(Vent {
                         points: (end_point[1]..start_point[1] + 1)
-                            .map(|v| [start_point[0], v]).collect(),
+                            .map(|v| [start_point[0], v])
+                            .collect(),
                         is_orthogonal: true,
                     });
                 } else {
                     return Ok(Vent {
                         points: (start_point[1]..end_point[1] + 1)
-                            .map(|v| [start_point[0], v]).collect(),
+                            .map(|v| [start_point[0], v])
+                            .collect(),
                         is_orthogonal: true,
                     });
                 }
@@ -43,13 +44,15 @@ impl FromStr for Vent {
                 if start_point[0] > end_point[0] {
                     return Ok(Vent {
                         points: (end_point[0]..start_point[0] + 1)
-                            .map(|v| [v, start_point[1]]).collect(),
+                            .map(|v| [v, start_point[1]])
+                            .collect(),
                         is_orthogonal: true,
                     });
                 } else {
                     return Ok(Vent {
                         points: (start_point[0]..end_point[0] + 1)
-                            .map(|v| [v, start_point[1]]).collect(),
+                            .map(|v| [v, start_point[1]])
+                            .collect(),
                         is_orthogonal: true,
                     });
                 }
@@ -58,34 +61,31 @@ impl FromStr for Vent {
                 let gradient = (end_point[1] - start_point[1]) as f32 / x_delta as f32;
                 let mut points: Vec<[i32; 2]> = [start_point].to_vec();
                 if x_delta < 0 {
-                    for x in 1..(-x_delta+1) {
-                        let y = x as f32*gradient;
-                        
+                    for x in 1..(-x_delta + 1) {
+                        let y = x as f32 * gradient;
+
                         if y.fract() == 0.0 {
                             let y_as_i32 = y.round() as i32;
-                            points.push([start_point[0] - x, start_point[1]-y_as_i32])
+                            points.push([start_point[0] - x, start_point[1] - y_as_i32])
                         }
                     }
                 } else {
-                for x in 1..x_delta+1 {
-                    let y = x as f32*gradient;
-                    
-                    if y.fract() == 0.0 {
-                        let y_as_i32 = y.round() as i32;
-                        points.push([start_point[0] + x, start_point[1]+y_as_i32])
+                    for x in 1..x_delta + 1 {
+                        let y = x as f32 * gradient;
+
+                        if y.fract() == 0.0 {
+                            let y_as_i32 = y.round() as i32;
+                            points.push([start_point[0] + x, start_point[1] + y_as_i32])
+                        }
                     }
                 }
-            }
                 return Ok(Vent {
                     points,
                     is_orthogonal: false,
                 });
             }
-
         }
         Err(regex::Error::Syntax("Bad things happened".to_string()))
-
-       
     }
 }
 
@@ -109,11 +109,7 @@ fn part_one(vents: Vec<Vent>) {
 
 fn part_two(vents: Vec<Vent>) {
     let mut points_hash: HashMap<[i32; 2], i32> = HashMap::new();
-    for point in vents
-        .into_iter()
-        .map(|v| v.points)
-        .flatten()
-    {
+    for point in vents.into_iter().map(|v| v.points).flatten() {
         match points_hash.clone().get(&point) {
             Some(v) => points_hash.insert(point, *v + 1),
             None => points_hash.insert(point, 1),
