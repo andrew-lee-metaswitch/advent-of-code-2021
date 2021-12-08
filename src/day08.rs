@@ -94,7 +94,6 @@ impl SevenSegementDisplay {
             }
         }
 
-
         // All three numbers that have five digits the '2', the '3' and the '5' use A, D, G in common
         // So we can find the two, becuase it's the only one that has the 'e'
         let five_digit_nos: Vec<Vec<char>> = self
@@ -106,9 +105,11 @@ impl SevenSegementDisplay {
         let the_two = five_digit_nos
             .iter()
             .filter(|v| v.contains(&the_char_that_maps_to_e))
-            .next().unwrap().to_owned();
+            .next()
+            .unwrap()
+            .to_owned();
 
-        // the five is the one with 2 letters 3 
+        // the five is the one with 2 letters 3
         let the_five_and_six: Vec<Vec<char>> = five_digit_nos
             .iter()
             .filter(|v| !v.contains(&the_char_that_maps_to_e))
@@ -116,32 +117,38 @@ impl SevenSegementDisplay {
             .collect();
 
         // This A, D, and G
-        let common_digits_across_two_and_five_and_six: Vec<char> = the_two.iter().filter(|v| the_five_and_six[0].contains(v)).filter(|v| the_five_and_six[1].contains(v)).map(|v| *v).collect_vec();
+        let common_digits_across_two_and_five_and_six: Vec<char> = the_two
+            .iter()
+            .filter(|v| the_five_and_six[0].contains(v))
+            .filter(|v| the_five_and_six[1].contains(v))
+            .map(|v| *v)
+            .collect_vec();
 
         // Using the '1' we can find which one maps to 'f' and 'c', by using the '2'
         let mut the_char_that_maps_to_c = 'c';
         let mut the_char_that_maps_to_f = 'f';
-        
+
         for c in the_one.iter() {
             if the_two.contains(c) {
                 the_char_that_maps_to_c = *c;
                 my_map.insert(c.clone(), 'c');
-            }
-            else {
+            } else {
                 the_char_that_maps_to_f = *c;
                 my_map.insert(c.clone(), 'f');
             }
         }
 
         let the_five = five_digit_nos
-        .iter()
-        .filter(|v| !v.contains(&the_char_that_maps_to_c))
-        .next().unwrap().to_owned();
+            .iter()
+            .filter(|v| !v.contains(&the_char_that_maps_to_c))
+            .next()
+            .unwrap()
+            .to_owned();
 
         // Using the '4' we can find which one maps to 'd'
         let mut the_char_that_maps_to_d = 'h';
         for c in the_four.iter() {
-            if common_digits_across_two_and_five_and_six.contains(&c)  {
+            if common_digits_across_two_and_five_and_six.contains(&c) {
                 the_char_that_maps_to_d = *c;
                 my_map.insert(c.clone(), 'd');
             }
@@ -156,7 +163,7 @@ impl SevenSegementDisplay {
                 if the_two.contains(&c) {
                     my_map.insert(c.clone(), 'g');
                 } else {
-                      my_map.insert(c.clone(), 'b');
+                    my_map.insert(c.clone(), 'b');
                 }
             }
         }
@@ -189,7 +196,7 @@ fn part_one(seven_segment_displays: &[SevenSegementDisplay]) {
         .iter()
         .map(|v| &v.right)
         .map(|v| v.iter().filter(|u| [2, 3, 4, 7].contains(&u.len())).count())
-        .sum();  
+        .sum();
     println!("Part 1 answer is {}", count);
 }
 
