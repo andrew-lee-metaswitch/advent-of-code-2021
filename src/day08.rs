@@ -72,9 +72,9 @@ impl SevenSegementDisplay {
         // Whatever character is in the '7' which is not in the '1' maps to 'a'
         let mut the_char_that_maps_to_a = 'a';
         for c in the_seven.iter() {
-            if !the_one.contains(&c) {
+            if !the_one.contains(c) {
                 the_char_that_maps_to_a = *c;
-                my_map.insert(c.clone(), 'a');
+                my_map.insert(*c, 'a');
             }
         }
 
@@ -88,7 +88,7 @@ impl SevenSegementDisplay {
         }
         let mut the_char_that_maps_to_e = 'e';
         for c in the_eight.iter() {
-            if !the_nine.contains(&c) {
+            if !the_nine.contains(c) {
                 the_char_that_maps_to_e = *c;
                 my_map.insert(the_char_that_maps_to_e.to_owned(), 'e');
             }
@@ -104,8 +104,7 @@ impl SevenSegementDisplay {
             .collect();
         let the_two = five_digit_nos
             .iter()
-            .filter(|v| v.contains(&the_char_that_maps_to_e))
-            .next()
+            .find(|v| v.contains(&the_char_that_maps_to_e))
             .unwrap()
             .to_owned();
 
@@ -121,7 +120,7 @@ impl SevenSegementDisplay {
             .iter()
             .filter(|v| the_five_and_six[0].contains(v))
             .filter(|v| the_five_and_six[1].contains(v))
-            .map(|v| *v)
+            .copied()
             .collect_vec();
 
         // Using the '1' we can find which one maps to 'f' and 'c', by using the '2'
@@ -131,26 +130,25 @@ impl SevenSegementDisplay {
         for c in the_one.iter() {
             if the_two.contains(c) {
                 the_char_that_maps_to_c = *c;
-                my_map.insert(c.clone(), 'c');
+                my_map.insert(*c, 'c');
             } else {
                 the_char_that_maps_to_f = *c;
-                my_map.insert(c.clone(), 'f');
+                my_map.insert(*c, 'f');
             }
         }
 
         let the_five = five_digit_nos
             .iter()
-            .filter(|v| !v.contains(&the_char_that_maps_to_c))
-            .next()
+            .find(|v| !v.contains(&the_char_that_maps_to_c))
             .unwrap()
             .to_owned();
 
         // Using the '4' we can find which one maps to 'd'
         let mut the_char_that_maps_to_d = 'h';
         for c in the_four.iter() {
-            if common_digits_across_two_and_five_and_six.contains(&c) {
+            if common_digits_across_two_and_five_and_six.contains(c) {
                 the_char_that_maps_to_d = *c;
-                my_map.insert(c.clone(), 'd');
+                my_map.insert(*c, 'd');
             }
         }
 
@@ -160,10 +158,10 @@ impl SevenSegementDisplay {
                 && c != &the_char_that_maps_to_a
                 && c != &the_char_that_maps_to_f
             {
-                if the_two.contains(&c) {
-                    my_map.insert(c.clone(), 'g');
+                if the_two.contains(c) {
+                    my_map.insert(*c, 'g');
                 } else {
-                    my_map.insert(c.clone(), 'b');
+                    my_map.insert(*c, 'b');
                 }
             }
         }
@@ -171,16 +169,16 @@ impl SevenSegementDisplay {
     }
 
     fn right_sum(&self) -> i32 {
-        let foo: HashMap<char, char> = self.determine_mapping();
-        println!("{:?}", foo);
+        let the_mapping: HashMap<char, char> = self.determine_mapping();
+        println!("{:?}", the_mapping);
         self.right
             .iter()
             .map(|v| {
                 let mut mapped_chars: Vec<char> = v
                     .chars()
-                    .map(|u| *foo.get(&u).unwrap())
+                    .map(|u| *the_mapping.get(&u).unwrap())
                     .collect::<Vec<char>>();
-                mapped_chars.sort();
+                mapped_chars.sort_unstable();
                 let sorted_string: String = mapped_chars.iter().collect();
                 let digit_it_represents = ATLAS.iter().position(|&x| x == sorted_string).unwrap();
                 char::from_digit(digit_it_represents as u32, 10).unwrap()
