@@ -69,7 +69,6 @@ fn part_two(lava_tubes: &[Vec<u8>]) {
                             orthogonal_points(q, lava_tubes)
                                 .iter()
                                 .filter(|[u, v]| lava_tubes[*u][*v] < lava_tubes[q[0]][q[1]])
-                                .filter(|[u, v]| lava_tubes[*u][*v] < lava_tubes[q[0]][q[1]])
                                 .all(|[u, v]| basin_points.contains(&[*u, *v]))
                         })
                         .filter(|q| !basin_points.contains(q))
