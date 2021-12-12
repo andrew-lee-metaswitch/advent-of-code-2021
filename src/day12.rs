@@ -46,15 +46,13 @@ impl FromStr for Cave {
 }
 
 fn go_cave_exploring(cave_graph: &[[Cave; 2]], can_visit_a_small_cave_twice: bool) -> usize {
-    let caves: Vec<Cave> = cave_graph
+    let mut get_connected_caves_map: HashMap<&Cave, Vec<Cave>> = HashMap::new();
+    for cave in cave_graph
         .iter()
         .map(|[_u, v]| v)
         .chain(cave_graph.iter().map(|[u, _v]| u))
-        .cloned()
-        .collect();
-    let mut get_connected_caves_map: HashMap<&Cave, Vec<Cave>> = HashMap::new();
-    for c in caves.iter() {
-        get_connected_caves_map.insert(c, get_connected_caves(c, cave_graph));
+    {
+        get_connected_caves_map.insert(cave, get_connected_caves(cave, cave_graph));
     }
 
     let mut routes_count: usize = 0;
