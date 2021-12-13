@@ -58,7 +58,7 @@ fn part_two(mut dots: Vec<[i32; 2]>, folds: Vec<(FoldDirection, i32)>) {
             if dots.contains(&[y, x]) {
                 print!("#");
             } else {
-                print!(".");
+                print!(" ");
             }
         }
         println!();
