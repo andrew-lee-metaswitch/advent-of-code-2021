@@ -37,10 +37,7 @@ fn perform_fold(p: [i32; 2], fold: &(FoldDirection, i32)) -> [i32; 2] {
 fn part_one(dots: Vec<[i32; 2]>, fold: &(FoldDirection, i32)) {
     println!(
         "The answer to part one is {}",
-        dots.iter()
-            .map(|p| perform_fold(*p, fold))
-            .unique()
-            .count()
+        dots.iter().map(|p| perform_fold(*p, fold)).unique().count()
     );
 }
 
@@ -56,14 +53,13 @@ fn part_two(mut dots: Vec<[i32; 2]>, folds: Vec<(FoldDirection, i32)>) {
     for x in 0..6 {
         for y in 0..40 {
             if dots.contains(&[y, x]) {
-                print!("#");
+                print!("█");
             } else {
                 print!(" ");
             }
         }
         println!();
     }
-
 }
 
 pub(crate) fn day13() {
