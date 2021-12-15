@@ -1,6 +1,5 @@
 use crate::util;
-use std::cmp;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 fn orthogonal_points(point: &[usize; 2], risk_levels: &[Vec<u8>]) -> Vec<[usize; 2]> {
     let [row, column] = point;
@@ -22,30 +21,37 @@ fn orthogonal_points(point: &[usize; 2], risk_levels: &[Vec<u8>]) -> Vec<[usize;
 
 fn find_safest_route(risk_levels: &[Vec<u8>]) -> u32 {
     // Find the cheapest way to get from top-left to bottom-right
-    
+
     let mut cheapest_path_to_point: HashMap<[usize; 2], u32> = HashMap::new();
     cheapest_path_to_point.insert([0, 0], 0);
-    
 
     let mut new_cheapest_path_to_point = cheapest_path_to_point.clone();
-    
-    // Right we haven't been to all cells or the HashMap is still changing...
-    while cheapest_path_to_point.len() != risk_levels.len() * risk_levels[0].len()
-        || cheapest_path_to_point != new_cheapest_path_to_point
-    {
-        cheapest_path_to_point = new_cheapest_path_to_point.clone();
+    let mut places_to_go: HashSet<[usize; 2]> = HashSet::new();
+    places_to_go.insert([0, 0]);
 
-        for (point, cost) in &cheapest_path_to_point {
+    // Right we haven't been to all cells or the HashMap is still changing...
+    while !places_to_go.is_empty() {
+        cheapest_path_to_point = new_cheapest_path_to_point.clone();
+        let mut new_places_to_go: HashSet<[usize; 2]> = HashSet::new();
+
+        for (point, cost) in places_to_go
+            .iter()
+            .map(|p| (p, cheapest_path_to_point.get(p).unwrap()))
+        {
             let orthogonal_points_to_p = orthogonal_points(point, risk_levels);
 
             for q in orthogonal_points_to_p {
                 let path_cost_to_q = cost + risk_levels[q[0]][q[1]] as u32;
-                new_cheapest_path_to_point
-                    .entry(q)
-                    .and_modify(|v| *v = cmp::min(path_cost_to_q, *v))
-                    .or_insert(path_cost_to_q);
+                if !new_cheapest_path_to_point.contains_key(&q)
+                    || &path_cost_to_q < new_cheapest_path_to_point.get(&q).unwrap()
+                {
+                    new_places_to_go.insert(q);
+                    new_cheapest_path_to_point.insert(q, path_cost_to_q);
+                }
             }
         }
+        println!("New palces to go len {:?}", new_places_to_go.len());
+        places_to_go = new_places_to_go;
     }
     cheapest_path_to_point = new_cheapest_path_to_point.clone();
 
@@ -88,7 +94,10 @@ fn part_two(risk_levels: &[Vec<u8>]) {
         larger_cave_as_vec.push(my_row)
     }
 
-    println!("The part two answer is {}", find_safest_route(&larger_cave_as_vec));
+    println!(
+        "The part two answer is {}",
+        find_safest_route(&larger_cave_as_vec)
+    );
 }
 
 pub(crate) fn day15() {
