@@ -50,13 +50,10 @@ fn find_safest_route(risk_levels: &[Vec<u8>]) -> u32 {
                 }
             }
         }
-        println!("New palces to go len {:?}", new_places_to_go.len());
         places_to_go = new_places_to_go;
     }
-    cheapest_path_to_point = new_cheapest_path_to_point.clone();
-
     let bottom_right = [risk_levels.len() - 1, risk_levels[0].len() - 1];
-    *cheapest_path_to_point.get(&bottom_right).unwrap()
+    *new_cheapest_path_to_point.get(&bottom_right).unwrap()
 }
 
 fn part_one(risk_levels: &[Vec<u8>]) {
