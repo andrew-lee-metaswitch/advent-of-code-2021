@@ -71,13 +71,13 @@ fn part_one(mut bingo_boards: Vec<BingoBoard>, bingo_calls: Vec<i8>) {
 
             if BingoBoard::has_won(&bingo_boards[pos1]) {
                 //"We've won"
-                println!("The game has finished");
-                println!("The game board was {:?}", bingo_boards[pos1]);
+                //println!("The game has finished");
+                //println!("The game board was {:?}", bingo_boards[pos1]);
                 let sum_of_unturned = bingo_boards[pos1].sum_of_unturned();
-                println!(
-                    "The sum was {:?}, the number just called was {}",
-                    sum_of_unturned, call
-                );
+                // println!(
+                //     "The sum was {:?}, the number just called was {}",
+                //     sum_of_unturned, call
+                // );
                 println!(
                     "The game score was {}",
                     score = call as i32 * sum_of_unturned
@@ -90,11 +90,11 @@ fn part_one(mut bingo_boards: Vec<BingoBoard>, bingo_calls: Vec<i8>) {
 
 fn part_two(mut bingo_boards: Vec<BingoBoard>, bingo_calls: Vec<i8>) {
     for call in bingo_calls {
-        println!(
-            "BINGO CALL of {}, only {} bingo boards still haven't won",
-            call,
-            bingo_boards.len()
-        );
+        // println!(
+        //     "BINGO CALL of {}, only {} bingo boards still haven't won",
+        //     call,
+        //     bingo_boards.len()
+        // );
 
         for (pos1, bingo_board) in bingo_boards.clone().iter().enumerate() {
             // mutable bingo board is at bingo_boards[pos1]

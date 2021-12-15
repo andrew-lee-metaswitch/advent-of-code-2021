@@ -17,7 +17,7 @@ mod day11;
 mod day12;
 mod day13;
 mod day14;
-//mod day15;
+mod day15;
 // mod day16;
 // mod day17;
 // mod day18;
@@ -39,6 +39,23 @@ struct Cli {
 fn main() {
     let args = Cli::from_args();
     match args.day {
+        0 => {
+            day01::day01();
+            day02::day02();
+            day03::day03();
+            day04::day04();
+            day05::day05();
+            day06::day06();
+            day07::day07();
+            day08::day08();
+            day09::day09();
+            day10::day10();
+            day11::day11();
+            day12::day12();
+            day13::day13();
+            day14::day14();
+            day15::day15();
+        }
         1 => day01::day01(),
         2 => day02::day02(),
         3 => day03::day03(),
@@ -53,7 +70,7 @@ fn main() {
         12 => day12::day12(),
         13 => day13::day13(),
         14 => day14::day14(),
-        //15 => day15::day15(),
+        15 => day15::day15(),
         // 16 => day16::day16(),
         // 17 => day17::day17(),
         // 18 => day18::day18(),

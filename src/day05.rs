@@ -97,8 +97,10 @@ fn part_one(vents: Vec<Vent>) {
         .map(|v| v.points)
         .flatten()
     {
-        points_hash.entry(point).and_modify(|v| *v += 1).or_insert(1);
-
+        points_hash
+            .entry(point)
+            .and_modify(|v| *v += 1)
+            .or_insert(1);
     }
 
     let points_on_multiple_vents = points_hash.values().filter(|v| *v > &1).count();
@@ -109,8 +111,10 @@ fn part_two(vents: Vec<Vent>) {
     let mut points_hash: HashMap<[i32; 2], i32> = HashMap::new();
     for point in vents.into_iter().map(|v| v.points).flatten() {
         {
-            points_hash.entry(point).and_modify(|v| *v += 1).or_insert(1);
-    
+            points_hash
+                .entry(point)
+                .and_modify(|v| *v += 1)
+                .or_insert(1);
         }
     }
 

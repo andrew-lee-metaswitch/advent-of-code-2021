@@ -67,7 +67,6 @@ impl SevenSegementDisplay {
                 _ => {}
             }
         }
-        println!("{:?}", self.left);
 
         // Whatever character is in the '7' which is not in the '1' maps to 'a'
         let mut the_char_that_maps_to_a = 'a';
@@ -170,7 +169,6 @@ impl SevenSegementDisplay {
 
     fn right_sum(&self) -> i32 {
         let the_mapping: HashMap<char, char> = self.determine_mapping();
-        println!("{:?}", the_mapping);
         self.right
             .iter()
             .map(|v| {
