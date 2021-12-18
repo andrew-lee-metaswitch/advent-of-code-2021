@@ -1,6 +1,6 @@
 use crate::util;
+use std::collections::HashMap;
 use std::fmt;
-use std::{collections::HashMap, fmt::Debug};
 
 lazy_static! {
     static ref HEXBYTES: HashMap<char, Vec<char>> = hashmap! {
@@ -23,7 +23,7 @@ lazy_static! {
     };
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 struct BitsSequence {
     binary_string: Vec<char>,
     version: u8,
@@ -34,7 +34,6 @@ struct BitsSequence {
     length_of_sub_packets: Option<u32>,
     unprocessed_bytes: Option<Vec<char>>,
     substrates: Option<Vec<BitsSequence>>,
-    kids_are_processed: bool,
 }
 
 impl fmt::Display for BitsSequence {
@@ -81,7 +80,23 @@ impl fmt::Display for BitsSequence {
     }
 }
 
+impl fmt::Debug for BitsSequence {
+    fn fmt(&self, _f: &mut fmt::Formatter) -> fmt::Result {
+        self.print_me(0);
+        Ok(())
+    }
+}
+
 impl BitsSequence {
+    fn print_me(&self, indent: usize) {
+        println!("{: <0$} {1}", indent, self);
+        if let Some(substrates) = &self.substrates {
+            for s in substrates {
+                s.print_me(indent + 4)
+            }
+        }
+    }
+
     fn from_vec(input: Vec<char>) -> Self {
         // Every packet begins with a standard header: the first three bits encode the packet version
         let version: u8 = u8::from_str_radix(
@@ -96,7 +111,7 @@ impl BitsSequence {
         )
         .unwrap();
 
-        let mut a = match packet_id {
+        let mut bit_sequence = match packet_id {
             4 => {
                 // Remaining chars in packet represent a literal value:
                 // So it encodes a single binary number.
@@ -130,7 +145,6 @@ impl BitsSequence {
                     binary_number: Some(binary_number),
                     substrates: None,
                     unprocessed_bytes: None,
-                    kids_are_processed: true,
                 }
             }
             _ => {
@@ -148,7 +162,8 @@ impl BitsSequence {
                         .unwrap();
 
                         BitsSequence {
-                            binary_string: input.clone(),
+                            binary_string: input[0..22].iter().copied().collect::<Vec<char>>(),
+
                             version,
                             packet_id,
                             fully_processed: false,
@@ -158,8 +173,7 @@ impl BitsSequence {
                             unprocessed_bytes: Some(
                                 input[22..input.len()].iter().copied().collect(),
                             ),
-                            substrates: None,
-                            kids_are_processed: false,
+                            substrates: Some(vec![]),
                         }
                     }
                     '1' => {
@@ -171,7 +185,7 @@ impl BitsSequence {
                         )
                         .unwrap();
                         BitsSequence {
-                            binary_string: input.clone(),
+                            binary_string: input[0..18].iter().copied().collect::<Vec<char>>(),
                             version,
                             packet_id,
                             fully_processed: false,
@@ -181,138 +195,73 @@ impl BitsSequence {
                             unprocessed_bytes: Some(
                                 input[18..input.len()].iter().copied().collect(),
                             ),
-                            substrates: None,
-                            kids_are_processed: false,
+                            substrates: Some(vec![]),
                         }
                     }
                     _ => panic!("Whoops-si-daisy"),
                 }
             }
         };
-
-        while !a.fully_processed {
-            // a is not fully OK, so lets process all those unprocessed bytes
-            println!("a thing is not fully processed {}", a);
-            if a.substrates != None {
-                println!("Here are tings in a");
-                for b in a.substrates.as_ref().unwrap() {
-                    println!("    {}", b);
-                }
-                println!("Here endeth tings in a");
-            }
-
-            // Either, we should keep using execess unprocessed_bytes_vec to make more kids, but first check we don't already have too many kids,
-
-            if let Some(substructs) = &mut a.substrates {
-                let length = substructs
-                    .iter()
-                    .map(|s| s.binary_string.len())
-                    .sum::<usize>();
-                let total = substructs.len();
-                println!("len is {}, totoal is {}", length, total);
-                if substructs.iter().all(|s| s.fully_processed) {
-                    if total == a.number_of_sub_packets.unwrap_or(0) as usize
-                        || length == a.length_of_sub_packets.unwrap_or(0) as usize
-                    {
-                        // a is complete
-                        println!(
-                            "Hitting this - need to get rid of some of those unproceesed bytes"
-                        );
-                        a.kids_are_processed = true;
-                        return a;
-                    } else if total > a.number_of_sub_packets.unwrap_or(200000) as usize
-                        || length > a.length_of_sub_packets.unwrap_or(100000) as usize
-                    {
-                        panic!("😢");
-                    }
-                }
-
-                // Okay we have substrates
-                for s in substructs.iter_mut() {
-                    if s.kids_are_processed {
-                        if let Some(s_unprocessed_bytes) = &mut s.unprocessed_bytes {
-                            s.binary_string = s.binary_string
-                                [0..s.binary_string.len() - s_unprocessed_bytes.len()]
-                                .to_vec();
-                            if s_unprocessed_bytes.len() < 6 {
-                                s_unprocessed_bytes.clear();
-                            }
-
-                            a.unprocessed_bytes = match a.unprocessed_bytes {
-                                Some(mut a_unprocessed_bytes) => Some({
-                                    a_unprocessed_bytes.extend(s_unprocessed_bytes.clone());
-                                    a_unprocessed_bytes
-                                }),
-                                None => Some(s_unprocessed_bytes.to_vec()),
-                            };
-                        }
-
-                        s.unprocessed_bytes = None;
-                        s.fully_processed = true;
-                    }
-                }
-            }
-
-            if let Some(unprocessed_bytes_vec) = &mut a.unprocessed_bytes {
-                if unprocessed_bytes_vec.len() < 6 {
-                    // this is trailling whitescape
-                    a.unprocessed_bytes = None;
-                } else {
-                    let b = BitsSequence::from_vec(unprocessed_bytes_vec.to_vec());
-
-                    // We've parsed b, lets removed those chars from unprocessed_bytes
-                    if b.binary_string.len() == unprocessed_bytes_vec.len() {
-                        // We've got no more unprocessed bytes {
-                        a.unprocessed_bytes = None;
-                    } else {
-                        a.unprocessed_bytes = Some(
-                            unprocessed_bytes_vec
-                                [b.binary_string.len()..unprocessed_bytes_vec.len()]
-                                .to_vec(),
-                        );
-                    }
-                    a.substrates = match a.substrates {
-                        Some(mut vec) => Some({
-                            vec.push(b);
-                            vec
-                        }),
-                        None => Some([b].to_vec()),
-                    };
-                }
-            }
-
-            if a.unprocessed_bytes == None {
-                a.fully_processed = a.all_subpackets_processed();
-            }
-        }
-        println!("New fully processed thing : {}", a);
-        println!("Here are things inside the new thing:");
-        if a.substrates != None {
-            for b in a.substrates.as_ref().unwrap() {
-                println!("    {}", b);
-                println!("    Here endeth tings in a");
-            }
-        }
-        a
+        bit_sequence.process_me();
+        bit_sequence
     }
 
-    fn all_subpackets_processed(&self) -> bool {
-        //println!("Deciding if {} is fully procseed", self);
-        if self.fully_processed {
-            true
-        } else if let Some(substrates_vec) = &self.substrates {
-            let length = substrates_vec
-                .iter()
-                .map(|s| s.binary_string.len())
-                .sum::<usize>();
-            let total = substrates_vec.len();
-            substrates_vec.iter().all(|s| s.fully_processed)
-                && (total == self.number_of_sub_packets.unwrap_or(0) as usize
-                    || length == self.length_of_sub_packets.unwrap_or(0) as usize)
-        } else {
-            // No substrates and not fully_processed
-            false
+    fn new_length(&self) -> usize {
+        let mut rc = self.binary_string.len();
+        if let Some(s) = &self.substrates {
+            for ss in s {
+                rc += ss.new_length();
+            }
         }
+        rc
+    }
+
+    fn process_me(&mut self) {
+        // This is complicated!
+
+        // If we're fully proceed great
+        if self.fully_processed {
+            return;
+        }
+
+        // First decide if you are happy with current state, that is,
+        //  #subparts ==  target#subparts or target#sum subparts sumsubparts
+
+        if let Some(substructs) = &mut self.substrates {
+            let mut length = substructs.iter().map(|s| s.new_length()).sum::<usize>();
+            let mut total = substructs.len();
+            while total != self.number_of_sub_packets.unwrap_or(20000) as usize
+                && length != self.length_of_sub_packets.unwrap_or(20000) as usize
+            {
+                if let Some(unprocessed_bytes_vec) = &mut self.unprocessed_bytes {
+                    if unprocessed_bytes_vec.len() < 6 {
+                        // this is trailling whitescape
+                        self.unprocessed_bytes = None;
+                    } else {
+                        let mut b = BitsSequence::from_vec(unprocessed_bytes_vec.to_vec());
+                        b.process_me();
+
+                        // b is now fully procssed
+                        // So let's cut lots of bytes of unprocessed_bytes_vec
+                        if b.new_length() == unprocessed_bytes_vec.len() {
+                            // We've got no more unprocessed bytes {
+                            self.unprocessed_bytes = None;
+                        } else {
+                            self.unprocessed_bytes = Some(
+                                unprocessed_bytes_vec[b.new_length()..unprocessed_bytes_vec.len()]
+                                    .to_vec(),
+                            );
+                        }
+                        substructs.push(b);
+                        length = substructs.iter().map(|s| s.new_length()).sum::<usize>();
+                        total = substructs.len();
+                    }
+                }
+            }
+            self.fully_processed = true;
+        }
+
+        // We have substrates, but not enough, add another one
     }
 
     fn total_sum(&self) -> u32 {
@@ -327,10 +276,6 @@ impl BitsSequence {
 
     fn expresion(&self) -> u64 {
         if let Some(no) = self.binary_number {
-            println!(
-                "Packet {} has expression value {} and type {}",
-                self, no, self.packet_id
-            );
             return no;
         }
         let a = match self.packet_id {
@@ -393,10 +338,6 @@ impl BitsSequence {
             }
             _ => panic!("Whoops-idaisy"),
         };
-        println!(
-            "Packet {} has expression value {} and type {}",
-            self, a, self.packet_id
-        );
         a
     }
 }
@@ -411,29 +352,17 @@ fn part_two(bit_sequence: &BitsSequence) {
 
 pub(crate) fn day16() {
     // Load inputs from input directory
-    let bit_sequence: BitsSequence = BitsSequence::from_vec({
-        let hex_str = util::load_inputs("16".to_string())
+    let bit_sequence: BitsSequence = BitsSequence::from_vec(
+        util::load_inputs("16".to_string())
             .get(0)
             .unwrap()
             .chars()
             .map(|v| HEXBYTES.get(&v).unwrap())
             .flatten()
             .cloned()
-            .collect::<Vec<char>>();
-
-        // The hexadecimal representation of this packet might encode a few extra 0 bits at the end;
-        // while hex_str.last().unwrap() == &'0' {
-        //     hex_str.pop();
-        // }
-        hex_str
-    });
-
-    println!("{}", bit_sequence);
-
-    // while !bit_sequence.fully_processed {
-    //     println!("Processing main packet");
-    //     bit_sequence.process_me();
-    // }
+            .collect::<Vec<char>>(),
+    );
+    println!("{:?}", bit_sequence);
 
     part_one(&bit_sequence);
     part_two(&bit_sequence);

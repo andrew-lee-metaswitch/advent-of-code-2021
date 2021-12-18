@@ -70,8 +70,8 @@ fn part_one_and_two(x: [i32; 2], y: [i32; 2]) {
 
     // in x direction, we will stop moving in x' turns (as after then current-x-velocty will be 0)
     // in that time we will have travelled (x')^2 - t(x') in the x-direction, where t(a) is the ath triangle number.
-    // By maths, (x')^2 - t(x') = t(x'-1) > x[0]
-    // By maths a < sqrt(x[0]) => t(a) < x[0], so x' > sqrt(x[0]) + 1
+    // By maths, (x')^2 - t(x') = t(x'-1)
+    // By maths a < sqrt(b) => t(a) < b, so given we want t(x'-1) >= x[0], we want x'-1 >= sqrt(x[0])
     let x_min = ((x[0] as f32).sqrt().floor() as i32) + 1;
 
     // y will have velocity  y' + y' -1 + y' -2 = ny' - t(n-1).
