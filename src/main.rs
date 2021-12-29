@@ -14,23 +14,21 @@ mod day12;
 mod day13;
 mod day14;
 mod day15;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate maplit;
-
-mod util;
-
 mod day16;
 mod day17;
-// mod day18;
+mod day18;
 // mod day19;
-// mod day20;
+mod day20;
 // mod day21;
 // mod day22;
 // mod day23;
 // mod day24;
 // mod day25;
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate maplit;
+mod util;
 
 #[derive(StructOpt)]
 struct Cli {
@@ -57,6 +55,8 @@ fn main() {
             day14::day14();
             day15::day15();
             day16::day16();
+            day17::day17();
+            // day18::day18();
         }
         1 => day01::day01(),
         2 => day02::day02(),
@@ -75,9 +75,9 @@ fn main() {
         15 => day15::day15(),
         16 => day16::day16(),
         17 => day17::day17(),
-        // 18 => day18::day18(),
+        //18 => day18::day18(),
         // 19 => day19::day19(),
-        // 20 => day20::day20(),
+        20 => day20::day20(),
         // 21 => day21::day21(),
         // 22 => day22::day22(),
         // 23 => day23::day23(),
